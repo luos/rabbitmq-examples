@@ -51,6 +51,7 @@ public class Receiver extends SwingWorker< Integer, String >{
             channel.basicConsume(queue, autoAck, new DefaultConsumer(channel) {
 
 
+                @Override
                 public void handleDelivery(String consumerTag,
                                            Envelope envelope,
                                            AMQP.BasicProperties properties,
