@@ -1,5 +1,6 @@
 package com.esl.uk;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import com.rabbitmq.client.ConnectionFactory;
@@ -22,8 +23,8 @@ public class App
     final private static String RK_1 = "EXERCISE_6_RK_1";
     final private static String RK_2 = "EXERCISE_6_RK_2";
 
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) {
+
         try {
             final ConnectionFactory factory = new ConnectionFactory();
             Logger logger = LoggerFactory.getLogger(App.class);
@@ -40,7 +41,7 @@ public class App
             logger.info("Setting up producer ...");
 
             // Create Connection and Channel
-            Connection connection  = factory.newConnection();
+            Connection connection = factory.newConnection();
             Channel    channel     = connection.createChannel();
 
             // Define Lazy Queue arguments
@@ -68,6 +69,7 @@ public class App
 
             // EXERCISE_6_TEST_DEFAULT_QUEUE_1	1804352
             // EXERCISE_6_TEST_LAZY_QUEUE_2	    89408
+            connection.close();
 
         } catch (Exception e){
             e.printStackTrace();

@@ -56,8 +56,10 @@ public class App
 
             logger.info( "Completed publishing {} messages ...", n );
 
+
         } catch (Exception e){
             e.printStackTrace();
         }
+        System.exit(0);
     }
 }

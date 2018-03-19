@@ -1,189 +1,205 @@
 package com.esl.uk;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static javax.swing.GroupLayout.*;
+import static javax.swing.GroupLayout.Alignment.*;
+import static javax.swing.LayoutStyle.ComponentPlacement.*;
 
-public class UI extends JFrame{
+public class UI extends JFrame {
 
-    // Variables declaration - do not modify
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextArea jTextArea3;
-    // End of variables declaration
+    private final String subscribe_to_queue;
+    private final String send_to_queue;
 
-    private final Publisher publisher;
-    private final Receiver  receiver;
-    private final String    subscribe_to_queue;
-    private final String    send_to_queue;
+    JTextArea entryTextArea = new JTextArea();
+    JTextArea messagesSendTextArea = new JTextArea();
+    JTextArea messagesRecvTextArea = new JTextArea();
 
-    public UI(String title, String SendToQueue, String SubscribeToQueue){
-        initComponents(title);
+    private final Logger logger = LoggerFactory.getLogger(UI.class);
 
-        send_to_queue = SendToQueue;
-        subscribe_to_queue = SubscribeToQueue;
+    @SuppressWarnings("unused")
+    public UI(String title, String sendToQueue, String subscribeToQueue) {
 
-        publisher = new Publisher(jTextArea2, send_to_queue);
-        receiver  = new Receiver(jTextArea3);
+        logger.info("title ='{}', sendToQueue ='{}' subscribeToQueue ='{}'", title, sendToQueue, subscribeToQueue);
 
-        jButton1.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent event)
-                    {
-                        publisher.send(jTextArea1.getText(), 1);
-                        receiver.go(subscribe_to_queue, true);
-                    }
-                }
-        );
+        send_to_queue = sendToQueue;
+        subscribe_to_queue = subscribeToQueue;
 
-        jButton2.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent event)
-                    {
-                        jTextArea1.setText("");
-                    }
-                }
-        );
+        Publisher publisher = new Publisher(messagesSendTextArea, send_to_queue);
+        Receiver receiver = new Receiver(messagesRecvTextArea, subscribe_to_queue);
+        initComponents(title, publisher);
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void initComponents(String title) {
+    private void initComponents(String title, final Publisher publisher) {
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
+        JButton cancelButton = new JButton();
+        JButton sendButton = new JButton();
+        JLabel jLabel1 = new JLabel();
+        JLabel labelSent = new JLabel();
+        JLabel labelReceived = new JLabel();
+        JPanel titlePanel = new JPanel();
+        JPanel jPanel2 = new JPanel();
+        JScrollPane jScrollPane1 = new JScrollPane();
+        JScrollPane sentPane = new JScrollPane();
+        JScrollPane jScrollPane3 = new JScrollPane();
+
+
+        sendButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        logger.debug("clicked send button");
+                        publisher.send(entryTextArea.getText(), 1);
+                    }
+                }
+        );
+
+        cancelButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        logger.debug("clicked clear button");
+                        entryTextArea.setText("");
+                    }
+                }
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setName("RabbitMQ"); // NOI18N
+        titlePanel.setName("RabbitMQ"); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText(title);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(titlePanel);
+        titlePanel.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel1Layout.createParallelGroup(Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(18, 18, 18)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jLabel1, PREFERRED_SIZE, 225, PREFERRED_SIZE)
+                                .addContainerGap(DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel1Layout.createParallelGroup(Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLabel1)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addContainerGap(DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel1.getAccessibleContext().setAccessibleName("chatJLabel1");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        entryTextArea.setColumns(20);
+        entryTextArea.setRows(5);
+        jScrollPane1.setViewportView(entryTextArea);
 
-        jButton1.setText("Send");
+        sendButton.setText("Send");
 
-        jButton2.setText("Clear");
+        cancelButton.setText("Clear");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel2Layout.createParallelGroup(LEADING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel2Layout.createParallelGroup(TRAILING)
                                         .addComponent(jScrollPane1)
                                         .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(sendButton, PREFERRED_SIZE, 122, PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(cancelButton, PREFERRED_SIZE, 122, PREFERRED_SIZE)))
                                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
-                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel2Layout.createParallelGroup(LEADING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
-                                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE))
+                                .addComponent(jScrollPane1, PREFERRED_SIZE, 130, PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(BASELINE)
+                                        .addComponent(sendButton, DEFAULT_SIZE, 41, Short.MAX_VALUE)
+                                        .addComponent(cancelButton, DEFAULT_SIZE, 41, Short.MAX_VALUE))
                                 .addContainerGap())
         );
 
-        jTextArea2.setBackground(new java.awt.Color(234, 232, 232));
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        messagesSendTextArea.setBackground(new java.awt.Color(234, 232, 232));
+        messagesSendTextArea.setColumns(20);
+        messagesSendTextArea.setRows(5);
+        sentPane.setViewportView(messagesSendTextArea);
 
-        jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Messages");
+//        jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
+        labelSent.setHorizontalAlignment(SwingConstants.LEFT);
+        labelSent.setText("Sent...");
+        labelReceived.setHorizontalAlignment(SwingConstants.LEFT);
+        labelReceived.setText("Received...");
 
-        jTextArea3.setBackground(new java.awt.Color(234, 232, 232));
-        jTextArea3.setColumns(20);
-        jTextArea3.setRows(5);
-        jScrollPane3.setViewportView(jTextArea3);
+//        jLabel3.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
+//        jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
+//        jLabel3.setText("Received messages");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        messagesRecvTextArea.setBackground(new java.awt.Color(234, 232, 232));
+        messagesRecvTextArea.setColumns(20);
+        messagesRecvTextArea.setRows(5);
+        jScrollPane3.setViewportView(messagesRecvTextArea);
+
+        GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addContainerGap()
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+
+        GroupLayout.ParallelGroup parallelGroup = layout.createParallelGroup(LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(LEADING)
+                                .addGroup(TRAILING, layout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(layout.createParallelGroup(TRAILING)
+                                                .addComponent(jPanel2, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(titlePanel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(TRAILING)
+                                                .addComponent(jScrollPane3, PREFERRED_SIZE, 252, PREFERRED_SIZE)
+                                                .addGroup(
+
+
+                                                        layout.createParallelGroup(LEADING)
                                                                 .addGroup(layout.createSequentialGroup()
                                                                         .addGap(82, 82, 82)
-                                                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                        .addComponent(labelSent, PREFERRED_SIZE, 105, PREFERRED_SIZE))
+
+                                                                .addGroup(layout.createSequentialGroup()
+                                                                        .addGap(82, 82, 82)
+                                                                        .addComponent(labelReceived, PREFERRED_SIZE, 105, PREFERRED_SIZE))
+
                                                                 .addGroup(layout.createSequentialGroup()
                                                                         .addGap(14, 14, 14)
-                                                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                                .addGap(0, 0, Short.MAX_VALUE)))
-                                .addContainerGap())
-        );
+                                                                        .addComponent(sentPane, PREFERRED_SIZE, 252, PREFERRED_SIZE)))
+
+                                        )
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap());
+
+        layout.setHorizontalGroup(parallelGroup);
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+                                .addComponent(titlePanel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+                                .addPreferredGap(UNRELATED)
+                                .addComponent(jPanel2, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+//                                .addGap(18, 18, 18)
+                                .addComponent(labelSent)
+                                .addPreferredGap(UNRELATED)
+                                .addComponent(sentPane, PREFERRED_SIZE, 147, PREFERRED_SIZE)
+                                .addPreferredGap(UNRELATED)
+//                                .addGap(18, 18, 18)
+                                .addComponent(labelReceived)
+                                .addPreferredGap(UNRELATED)
+                                .addComponent(jScrollPane3, DEFAULT_SIZE, 155, Short.MAX_VALUE)
                                 .addContainerGap())
         );
 

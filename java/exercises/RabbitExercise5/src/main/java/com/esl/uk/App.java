@@ -1,6 +1,5 @@
 package com.esl.uk;
 
-import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
 
 import javax.swing.*;
 import java.awt.*;

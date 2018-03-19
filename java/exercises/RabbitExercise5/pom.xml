@@ -48,9 +48,8 @@
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-nop</artifactId>
-      <version>1.7.25</version>
-      <scope>test</scope>
+      <artifactId>slf4j-log4j13</artifactId>
+      <version>1.0.1</version>
     </dependency>
 
   </dependencies>
