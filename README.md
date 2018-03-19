@@ -1,4 +1,3 @@
-# rabbitmq-examples
-===============
+# RabbitMQ Examples
 
-RabbitMQ code examples to illustrate some useful concepts.
+RabbitMQ code and configuration examples to illustrate operational concepts for training purposes.
