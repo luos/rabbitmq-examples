@@ -18,7 +18,7 @@ start() ->
   Args = [{<<"x-queue-master-locator">>, longstr, <<"min-masters">>}],
   QueueDeclare = #'queue.declare'{queue      = Queue,
                                   auto_delete= true,
-                                  durable    = true,
+                                  durable    = false,
                                   arguments  = Args },
   #'queue.declare_ok'{} = amqp_channel:call(Channel, QueueDeclare),
 
