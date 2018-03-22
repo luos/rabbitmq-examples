@@ -55,6 +55,7 @@ public class UI extends JFrame {
                     public void actionPerformed(ActionEvent event) {
                         logger.debug("clicked send button");
                         publisher.send(entryTextArea.getText());
+                        entryTextArea.setText("");
                     }
                 }
         );
