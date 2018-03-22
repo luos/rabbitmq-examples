@@ -12,13 +12,13 @@ public class UI extends JFrame {
 
     private final Logger logger = LoggerFactory.getLogger(UI.class);
 
-    public UI(String title, String sendToQueue, String subscribeToQueue) {
+    public UI(String title, String client_id, String sendToQueue, String subscribeToQueue, String rk) {
         logger.debug("title ='{}', sendToQueue ='{}' subscribeToQueue ='{}'", title, sendToQueue, subscribeToQueue);
-        initComponents(title, subscribeToQueue, sendToQueue);
+        initComponents(title, client_id, subscribeToQueue, sendToQueue, rk);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void initComponents(String title, String subscribe_to_queue, String send_to_queue) {
+    private void initComponents(String title, String client_id, String send_to_queue, String subscribe_to_queue, String rk) {
 
         this.setTitle(title);
 
@@ -34,12 +34,12 @@ public class UI extends JFrame {
         buttonPanel.add(cancelButton);
         buttonPanel.add(sendButton);
 
-        final JLabel labelSent = new JLabel("Sent");
+        final JLabel labelSent = new JLabel("Outbox");
         final JPanel labelSentPanel = new JPanel();
         labelSentPanel.add(labelSent);
 
 
-        final JLabel labelReceived = new JLabel("Received");
+        final JLabel labelReceived = new JLabel("Inbox");
         final JPanel labelReceivedPanel = new JPanel();
         labelReceivedPanel.add(labelReceived);
 
@@ -47,7 +47,7 @@ public class UI extends JFrame {
         final JScrollPane sentPane = new JScrollPane();
         final JScrollPane receivedPane = new JScrollPane();
 
-        final Publisher publisher = new Publisher(messagesSendTextArea, send_to_queue);
+        final Publisher publisher = new Publisher(messagesSendTextArea, client_id, send_to_queue, rk);
         new Receiver(messagesRecvTextArea, subscribe_to_queue);
 
         sendButton.addActionListener(
@@ -68,16 +68,18 @@ public class UI extends JFrame {
                 }
         );
 
-        entryTextArea.setColumns(20);
-        entryTextArea.setRows(5);
+        entryTextArea.setColumns(30);
+        entryTextArea.setRows(10);
         entryTextPane.setViewportView(entryTextArea);
 
-        messagesSendTextArea.setColumns(20);
-        messagesSendTextArea.setRows(5);
+        messagesSendTextArea.setColumns(30);
+        messagesSendTextArea.setRows(10);
+        messagesSendTextArea.setEditable(false);
         sentPane.setViewportView(messagesSendTextArea);
 
-        messagesRecvTextArea.setColumns(20);
-        messagesRecvTextArea.setRows(5);
+        messagesRecvTextArea.setColumns(30);
+        messagesRecvTextArea.setRows(10);
+        messagesRecvTextArea.setEditable(false);
         receivedPane.setViewportView(messagesRecvTextArea);
 
         layout(buttonPanel, labelSentPanel, labelReceivedPanel, entryTextPane, sentPane, receivedPane);

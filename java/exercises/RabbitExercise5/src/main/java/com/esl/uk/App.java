@@ -12,8 +12,8 @@ public class App {
         Properties props = System.getProperties();
         props.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
 
-        final UI ui_1 = new UI("Client 1|Send q1|Recv q2 ", Rabbit.CHAT_CLIENT_QUEUE_1, Rabbit.CHAT_CLIENT_QUEUE_2);
-        final UI ui_2 = new UI("Client 2|Send q2|Recv q1 ", Rabbit.CHAT_CLIENT_QUEUE_2, Rabbit.CHAT_CLIENT_QUEUE_1);
+        final UI ui_1 = new UI("CLIENT 1 | SEND Q2 | RECV Q1", Rabbit.CHAT_CLIENT_ID_1, Rabbit.CHAT_CLIENT_QUEUE_2, Rabbit.CHAT_CLIENT_QUEUE_1, Rabbit.RK_CLIENT_2);
+        final UI ui_2 = new UI("CLIENT 2 | SEND Q1 | RECV Q2", Rabbit.CHAT_CLIENT_ID_2, Rabbit.CHAT_CLIENT_QUEUE_1, Rabbit.CHAT_CLIENT_QUEUE_2, Rabbit.RK_CLIENT_1);
 
         final Dimension screen_dim = Toolkit.getDefaultToolkit().getScreenSize();
 

@@ -54,7 +54,7 @@ public class Receiver extends SwingWorker<Integer, String> {
                                            byte[] body) throws IOException {
 
                     String message =
-                            String.format("RECV: %s  \n", new String(body));
+                            String.format("RECV: %s \n", new String(body));
 
                     logger.info("received " + message);
                     publish(message);
@@ -71,7 +71,7 @@ public class Receiver extends SwingWorker<Integer, String> {
     protected void process(List<String> publishedMessages) {
         logger.info("processing " + publishedMessages);
         for (String s : publishedMessages) {
-            message_inbox.append("\n" + s);
+            message_inbox.append(s);
         }
     }
 }
