@@ -38,6 +38,29 @@ public class App {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
 
+            ConcurrentHashMap<Long, String> outstandingMessages = new ConcurrentHashMap<>();
+
+
+            channel.addConfirmListener((tag, multiple) -> {
+                // handle acknowledgments
+                outstandingMessages.remove(tag);
+                List<Long> allKeys = Collections.list(outstandingMessages.keys());
+
+                if (multiple) {
+                    for (Long t : allKeys) {
+                        if (t < tag) {
+                            outstandingMessages.remove(t);
+                        }
+                    }
+                }
+
+                System.out.println("Received confirm for tag " + tag + " multiple: " + multiple);
+            }, (tag, multiple) -> {
+                // handle rejections, we will not do that now
+                System.out.println("Received reject for tag " + tag + " multiple: " + multiple);
+            });
+
+
             // Create Queue
             channel.queueDeclare(QUEUE, true, false, false, null);
 
@@ -53,13 +76,24 @@ public class App {
             int n = 0;
 
             // enable confirms
+            channel.confirmSelect();
 
             for (n = 0; n < 100; n++) {
                 String message = "Published message: " + n;
+                outstandingMessages.put(channel.getNextPublishSeqNo(), message);
                 channel.basicPublish(EXCHANGE, RK, null, message.getBytes());
             }
 
             // add waiting for confirms
+
+            while (!outstandingMessages.isEmpty()) {
+                System.out.println("We are waiting for confirms for messages: " + outstandingMessages.size());
+                try {
+                    channel.waitForConfirms(1);
+                } catch (Exception e) {
+                    System.out.println("Timeout Exception");
+                }
+            }
 
             logger.info("Completed publishing {} messages ...", n);
             Thread.sleep(5000);
