@@ -4,7 +4,6 @@ import com.rabbitmq.client.*;
 import org.slf4j.*;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Exercise 1 : RabbitMQ Confirm Exercise
@@ -13,6 +12,7 @@ public class App {
     final private static String QUEUE = "EXERCISE_1_TEST_QUEUE";
     final private static String EXCHANGE = "EXERCISE_1_DIRECT_EXCHANGE";
     final private static String RK = "EXERCISE_1_ROUTING_KEY";
+    final private static String NAME = "PUT_YOUR_NAME_HERE";
 
     public static void main(String[] args) {
         try {
@@ -27,6 +27,8 @@ public class App {
 
             factory.setHost("localhost");
             factory.setPort(5672);
+
+            factory.getClientProperties().put("connection_name", NAME);
 
             logger.info("Setting up producer ...");
 
