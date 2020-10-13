@@ -54,15 +54,12 @@ public class App {
             String commonQueueName = NAME + "-common";
 
             // 1. Declare the common room exchange, it should be durable, fanout
-            channel.exchangeDeclare("common-room", "fanout", true);
 
             // 1. declare an auto delete queue for receiving messages
             // 2. bind the queue to the common-room exchange
 
-            channel.queueDeclare(commonQueueName, true, false, true, null);
 
             // 1. bind the queue to the common-room exchange, routing key can be anything
-            channel.queueBind(commonQueueName, "common-room", "");
 
             // process incoming common-room messages
             channel.basicConsume(commonQueueName, new DefaultConsumer(channel) {
@@ -86,15 +83,15 @@ public class App {
             });
 
             // 1. declare an exchange for private-messages, this should be a direct exchange
-            channel.exchangeDeclare("private-messages", "direct", true);
 
             // 1. declare an exclusive queue for private-messages
             // 2. bind it to the private-messages exchange, routing key should be your name
 
             String privateMessagesQueueName = NAME + "-privates";
-            channel.queueDeclare(privateMessagesQueueName, true, true, true, null);
-            channel.queueBind(privateMessagesQueueName, "private-messages", NAME);
 
+            // uncomment the following lines after the private queuei s declared
+
+/*
             channel.basicConsume(privateMessagesQueueName, new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag,
@@ -113,7 +110,7 @@ public class App {
                     System.out.println("[PRIVATE]" + username + ": " + new String(body));
                     this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 }
-            });
+            });*/
 
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -130,11 +127,10 @@ public class App {
 
                     // 1. build a message with a header "chat-username"
                     // 2. publish it to the common-room exchange
-
                     Map<String, Object> headers = new HashMap<>();
                     headers.put("chat-username", NAME);
                     AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
-                    channel.basicPublish("common-room", "", props, message.getBytes());
+                    // add the publish call
                 } else if (command.toLowerCase().startsWith("private")) {
                     String rest = command.substring(8);
                     Integer nextSpace = rest.indexOf(" ");
