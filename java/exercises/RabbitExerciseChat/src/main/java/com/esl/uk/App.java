@@ -50,10 +50,9 @@ public class App {
                 System.out.println("This message could not be routed, user is not online: " + returned.getRoutingKey() + " - " + new String(returned.getBody()));
             });
 
-
             String commonQueueName = NAME + "-common";
 
-            // 1. Declare the common room exchange, it should be durable, fanout
+            // 1. Declare the common-room exchange, it should be durable, fanout
 
             // 1. declare an auto delete queue for receiving messages
             // 2. bind the queue to the common-room exchange
