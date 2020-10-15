@@ -7,11 +7,10 @@ import org.slf4j.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Exercise 1 : RabbitMQ Confirm Exercise
@@ -27,10 +26,9 @@ public class App {
             factory.setAutomaticRecoveryEnabled(true);
 
             // Set 'Connection' Credentials
-            factory.setUsername("guest");
-            factory.setPassword("guest");
-            factory.setHost("localhost");
-
+            factory.setUsername("testuser");
+            factory.setPassword("7sbeU6Si1la3JS");
+            factory.setHost("35.158.11.199");
 
             factory.getClientProperties().put("connection_name", NAME);
             factory.setPort(5672);
@@ -80,7 +78,7 @@ public class App {
                         username = "Unkown user";
                     }
 
-                    System.out.println(username + ": " + new String(body));
+                    System.out.println("[" + new Date() + "] " + username + ": " + new String(body));
                     this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 }
             });
@@ -110,17 +108,48 @@ public class App {
                         username = "Unkown user";
                     }
 
-                    System.out.println("[PRIVATE]" + username + ": " + new String(body));
+                    System.out.println("[" + new Date() + "] " + "[PRIVATE]" + username + ": " + new String(body));
                     this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 }
             });
 
+            // **** Delayed Messages with Delayed Exchange
+
+            // setup of delayed message sending with delayed-exchange
+            // declare exchange of type x-delayed-message, for example "NAME-delayed-exchange"
+            // the x-delayed-type of the exchange should be fanout
+            // bind the exchange to the common-room exchange
+            String delayedExchangeName = NAME + "-delayed";
+
+            HashMap<String, Object> delayedArguments = new HashMap<>();
+            delayedArguments.put("x-delayed-type", "fanout");
+
+            // declare exchange channel.exchangeDeclare(name, type, durable=true, autoDelete=false, delayedArguments)
+            channel.exchangeDeclare(delayedExchangeName, "x-delayed-message", true, false, delayedArguments);
+            // bind exchange to common-room, channel.exchangeBind(destination, source, routingKey)
+            channel.exchangeBind("common-room", delayedExchangeName, "");
+
+
+
+            // **** Delayed Messages with Dead Lettering
+
+            String messagesWithTtlQueue = NAME + "-expiring-messages";
+
+            // declare a queue to hold the messages which will be published with
+            channel.queueDeclare(messagesWithTtlQueue, true, false, false, null);
+
+
+
+
+            // **** message command handling
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             boolean exit = false;
             System.out.println("Waiting for a command. Possible commands, start the line with 'send', 'exit', 'private' ");
             System.out.println("Send to common: send hello world");
             System.out.println("Send private: private Username hello world");
+            System.out.println("Send delayed through delay-exchange: delay-exchange 1000 message");
+            System.out.println("Send delayed through delay-dead-letter: delay-dead-letter 1000 message");
             while (!exit) {
                 String command = reader.readLine();
                 if (command.startsWith("exit")) {
@@ -131,8 +160,7 @@ public class App {
                     // 1. build a message with a header "chat-username"
                     // 2. publish it to the common-room exchange
 
-                    Map<String, Object> headers = new HashMap<>();
-                    headers.put("chat-username", NAME);
+                    Map<String, Object> headers = getDefaultHeaders();
                     AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
                     channel.basicPublish("common-room", "", props, message.getBytes());
                 } else if (command.toLowerCase().startsWith("private")) {
@@ -140,11 +168,52 @@ public class App {
                     Integer nextSpace = rest.indexOf(" ");
                     String targetUser = rest.substring(0, nextSpace).trim();
                     String message = rest.substring(nextSpace).trim();
-                    Map<String, Object> headers = new HashMap<>();
-                    headers.put("chat-username", NAME);
+                    Map<String, Object> headers = getDefaultHeaders();
                     System.out.println("Sending to '" + targetUser + "'");
                     AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
                     channel.basicPublish("private-messages", targetUser, true, props, message.getBytes());
+                } else if (command.toLowerCase().startsWith("delay-exchange")) {
+                    Pattern pattern = Pattern.compile("delay-exchange ([0-9]+) (.*)", Pattern.CASE_INSENSITIVE);
+                    Matcher matcher = pattern.matcher(command);
+                    if (matcher.matches()) {
+                        int delay = Integer.parseInt(matcher.group(1));
+                        String message = matcher.group(2);
+                        String fullMessage = "[DELAYED] " + message + " - sent on " + new Date();
+                        System.out.println("Sending message with delay: " + delay + "ms - " + message);
+
+                        // get headers with name
+                        Map<String, Object> headers = getDefaultHeaders();
+                        // 1. add delay to the headers
+                        headers.put("x-delay", delay);
+                        // 2. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
+                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
+                        // publish message
+                        channel.basicPublish(delayedExchangeName, "", false, props, fullMessage.getBytes());
+                    } else {
+                        System.out.println("Unknown command.");
+                    }
+                } else if (command.toLowerCase().startsWith("delay-dead-letter")) {
+                    Pattern pattern = Pattern.compile("delay-dead-letter ([0-9]+) (.*)", Pattern.CASE_INSENSITIVE);
+                    Matcher matcher = pattern.matcher(command);
+                    if (matcher.matches()) {
+                        Integer messagesExpires = Integer.parseInt(matcher.group(1));
+                        String message = matcher.group(2);
+                        String fullMessage = "[DELAYED] " + message + " - sent on " + new Date();
+                        System.out.println("Sending message with delay: " + messagesExpires + "ms - " + message);
+
+                        // get headers with name
+                        Map<String, Object> headers = getDefaultHeaders();
+                        // 2. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
+                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                                .expiration(messagesExpires.toString())
+                                .headers(headers).build();
+                        // publish message
+                        channel.basicPublish("", messagesWithTtlQueue, false, props, fullMessage.getBytes());
+                    } else {
+                        System.out.println("Unknown command.");
+                    }
+                } else {
+                    System.out.println("Unknown command.");
                 }
 
             }
@@ -153,5 +222,11 @@ public class App {
             e.printStackTrace();
         }
         System.exit(0);
+    }
+
+    private static Map<String, Object> getDefaultHeaders() {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("chat-username", NAME);
+        return headers;
     }
 }
