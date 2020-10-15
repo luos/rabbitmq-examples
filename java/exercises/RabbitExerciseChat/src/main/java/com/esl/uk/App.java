@@ -26,9 +26,9 @@ public class App {
             factory.setAutomaticRecoveryEnabled(true);
 
             // Set 'Connection' Credentials
-            factory.setUsername("user");
-            factory.setPassword("password");
-            factory.setHost("35.158.11.199");
+            factory.setUsername("guest");
+            factory.setPassword("guest");
+            factory.setHost("localhost");
 
             factory.getClientProperties().put("connection_name", NAME);
             factory.setPort(5672);
@@ -93,6 +93,7 @@ public class App {
             channel.queueDeclare(privateMessagesQueueName, true, true, true, null);
             channel.queueBind(privateMessagesQueueName, "private-messages", NAME);
 
+
             channel.basicConsume(privateMessagesQueueName, new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag,
@@ -125,11 +126,10 @@ public class App {
             delayedArguments.put("x-delayed-type", "fanout");
 
             // 1. declare exchange channel.exchangeDeclare(name, type, durable=true, autoDelete=false, delayedArguments)
-            channel.exchangeDeclare(delayedExchangeName,"x-delayed-message", true, false, delayedArguments);
+            channel.exchangeDeclare(delayedExchangeName, "x-delayed-message", true, false, delayedArguments);
 
             // 2. bind exchange to common-room, channel.exchangeBind(destination, source, routingKey)
             channel.exchangeBind("common-room", delayedExchangeName, "");
-
 
 
             // **** Delayed Messages with Dead Lettering
@@ -138,7 +138,7 @@ public class App {
 
             // 1. declare a queue to hold the messages which will be published with
 
-
+            channel.queueDeclare(messagesWithTtlQueue, true, false, false, null);
 
             // **** message command handling
 
@@ -190,7 +190,7 @@ public class App {
                                 .headers(headers)
                                 .build();
                         // publish message
-                         channel.basicPublish(delayedExchangeName,"", false, props, fullMessage.getBytes());
+                        channel.basicPublish(delayedExchangeName, "", false, props, fullMessage.getBytes());
                     } else {
                         System.out.println("Unknown command.");
                     }
@@ -206,9 +206,13 @@ public class App {
                         // get headers with name
                         Map<String, Object> headers = getDefaultHeaders();
                         // 1. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
-
+                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                                .headers(headers)
+                                .expiration(messagesExpires.toString())
+                                .build();
                         // 2. publish message
                         // channel.basicPublish ...
+                        channel.basicPublish("", messagesWithTtlQueue, true, props, fullMessage.getBytes());
                     } else {
                         System.out.println("Unknown command.");
                     }
