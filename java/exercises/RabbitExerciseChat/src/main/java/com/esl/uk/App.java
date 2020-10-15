@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * Exercise 1 : RabbitMQ Confirm Exercise
  */
 public class App {
-    final private static String NAME = "PUT_YOUR_NAME_HERE";
+    final private static String NAME = "Lajos";
 
     public static void main(String[] args) {
         try {
@@ -26,8 +26,8 @@ public class App {
             factory.setAutomaticRecoveryEnabled(true);
 
             // Set 'Connection' Credentials
-            factory.setUsername("testuser");
-            factory.setPassword("7sbeU6Si1la3JS");
+            factory.setUsername("user");
+            factory.setPassword("password");
             factory.setHost("35.158.11.199");
 
             factory.getClientProperties().put("connection_name", NAME);
@@ -125,9 +125,10 @@ public class App {
             delayedArguments.put("x-delayed-type", "fanout");
 
             // 1. declare exchange channel.exchangeDeclare(name, type, durable=true, autoDelete=false, delayedArguments)
+            channel.exchangeDeclare(delayedExchangeName,"x-delayed-message", true, false, delayedArguments);
 
             // 2. bind exchange to common-room, channel.exchangeBind(destination, source, routingKey)
-            
+            channel.exchangeBind("common-room", delayedExchangeName, "");
 
 
 
@@ -181,6 +182,7 @@ public class App {
 
                         // get headers with name
                         Map<String, Object> headers = getDefaultHeaders();
+                        headers.put("x-delay", delay);
                         // 1. add x-delay to the headers
                         // headers.put ... x-delay delay
                         // 2. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
@@ -188,7 +190,7 @@ public class App {
                                 .headers(headers)
                                 .build();
                         // publish message
-                         // channel.basicPublish
+                         channel.basicPublish(delayedExchangeName,"", false, props, fullMessage.getBytes());
                     } else {
                         System.out.println("Unknown command.");
                     }
