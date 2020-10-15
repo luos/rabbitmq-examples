@@ -124,10 +124,10 @@ public class App {
             HashMap<String, Object> delayedArguments = new HashMap<>();
             delayedArguments.put("x-delayed-type", "fanout");
 
-            // declare exchange channel.exchangeDeclare(name, type, durable=true, autoDelete=false, delayedArguments)
-            channel.exchangeDeclare(delayedExchangeName, "x-delayed-message", true, false, delayedArguments);
-            // bind exchange to common-room, channel.exchangeBind(destination, source, routingKey)
-            channel.exchangeBind("common-room", delayedExchangeName, "");
+            // 1. declare exchange channel.exchangeDeclare(name, type, durable=true, autoDelete=false, delayedArguments)
+
+            // 2. bind exchange to common-room, channel.exchangeBind(destination, source, routingKey)
+            
 
 
 
@@ -135,9 +135,7 @@ public class App {
 
             String messagesWithTtlQueue = NAME + "-expiring-messages";
 
-            // declare a queue to hold the messages which will be published with
-            channel.queueDeclare(messagesWithTtlQueue, true, false, false, null);
-
+            // 1. declare a queue to hold the messages which will be published with
 
 
 
@@ -183,12 +181,14 @@ public class App {
 
                         // get headers with name
                         Map<String, Object> headers = getDefaultHeaders();
-                        // 1. add delay to the headers
-                        headers.put("x-delay", delay);
+                        // 1. add x-delay to the headers
+                        // headers.put ... x-delay delay
                         // 2. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
-                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
+                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                                .headers(headers)
+                                .build();
                         // publish message
-                        channel.basicPublish(delayedExchangeName, "", false, props, fullMessage.getBytes());
+                         // channel.basicPublish
                     } else {
                         System.out.println("Unknown command.");
                     }
@@ -203,12 +203,10 @@ public class App {
 
                         // get headers with name
                         Map<String, Object> headers = getDefaultHeaders();
-                        // 2. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
-                        AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
-                                .expiration(messagesExpires.toString())
-                                .headers(headers).build();
-                        // publish message
-                        channel.basicPublish("", messagesWithTtlQueue, false, props, fullMessage.getBytes());
+                        // 1. build the amqp message properties out of the headers, see for "private-messages" publish how to do it
+
+                        // 2. publish message
+                        // channel.basicPublish ...
                     } else {
                         System.out.println("Unknown command.");
                     }
