@@ -44,6 +44,8 @@ public class App {
                 // message was rejected
             });
 
+            channel.basicQos(5, false);
+
             channel.addReturnListener((returned) -> {
                 System.out.println("This message could not be routed, queue does not exist: " + returned.getRoutingKey() + " - " + new String(returned.getBody()));
             });
@@ -51,8 +53,8 @@ public class App {
             String serviceRequestsExchange = NAME + "-service-requests";
 
 
-            // 1. Declare the service requests exchange, it should be an x-random
-            channel.exchangeDeclare(serviceRequestsExchange, "x-random", true);
+            // 1. Declare the service requests exchange, it should be an x-random, durable
+            // channel.exchangeDeclare(serviceRequestsExchange, type, durable);
 
             // 1. Declare the service queues, there should be 3 queues
             String[] serviceQueueNames = new String[]{
@@ -66,9 +68,12 @@ public class App {
                 // 2. these queues should be quorum queues
                 // 2. 1. add to queue arguments the x-queue-type argument with the value quorum
                 HashMap<String, Object> queueArguments = new HashMap<>();
-                queueArguments.put("x-queue-type", "quorum");
-                channel.queueDeclare(queue, true, false, false, queueArguments);
-                channel.queueBind(queue, serviceRequestsExchange, "");
+                // queueArguments.put("x-queue-type", "quorum");
+
+                // channel.queueDeclare(queue, durable=true, exclusive=false, autoDelete = false, queueArguments);
+
+                // 3. bind the queue to the exchange, because it is a random exchange routing key does not matter
+                // channel.queueBind(queue, exchange, routingKey);
             }
 
             for (String queue : serviceQueueNames) {
@@ -81,20 +86,31 @@ public class App {
                                                byte[] body)
                             throws IOException {
 
+
+                        // 1. get the reply to queue out of the properties
                         String replyToQueue = properties.getReplyTo();
+
+
                         String message = new String(body);
                         System.out.println("[" + queue + "] Received request: '" + message + "' through '" + queue + "' replying to: '" + replyToQueue + "'");
 
                         if (replyToQueue != null) {
+                            // simulate work
                             sleep(3000);
                             // we reply to the queue after 5 seconds
                             String result = "Your request was processed: '" + message + "' on " + new Date();
-                            this.getChannel().basicPublish("", replyToQueue, true, null, result.getBytes());
-                            this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+
+                            // edit it here
+                            // 1. Publish an anser to the queue
+                            // this.getChannel().basicPublish(exchange, replyToQueue, true, null, result.getBytes());
+                            // acknowledge the messages, delivery tag is from the envelope.getDeliveryTag()
+                            // this.getChannel().basicAck(deliverTag, multiple= false);
+
+
                         } else {
                             System.out.println("There should be a reply to saying where to reply");
-                            // Reject the message with requeue=false
-                            this.getChannel().basicReject(envelope.getDeliveryTag(), false);
+                            // 1. Reject the message with requeue=false
+                            //this.getChannel().basicReject(deliveryTag, requeue=false);
                         }
 
                     }

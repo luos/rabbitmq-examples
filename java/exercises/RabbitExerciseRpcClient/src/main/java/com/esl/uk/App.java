@@ -87,7 +87,7 @@ public class App {
                 // channel.basicConsume(queueName, consumer);
 
                 /// 3. build the message properties with replyTo set to the random queue name
-                
+
 
                 // 4. Publish the message
                 // channel.basicPublish(exchange,routingKey,mandatory=true, props, request.getBytes());
