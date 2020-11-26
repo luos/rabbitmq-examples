@@ -1,0 +1,13 @@
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitExcercise1.deps.json
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitExcercise1.runtimeconfig.json
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitExcercise1.runtimeconfig.dev.json
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitExcercise1.dll
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitExcercise1.pdb
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/RabbitMQ.Client.dll
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/bin/Debug/netcoreapp3.1/System.Threading.Channels.dll
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.csprojAssemblyReference.cache
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.AssemblyInfoInputs.cache
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.AssemblyInfo.cs
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.csproj.CopyComplete
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.dll
+/Users/lajosgerecs/development/rabbitmq/trainings/rabbitmq-examples/csharp/RabbitExcercise1/obj/Debug/netcoreapp3.1/RabbitExcercise1.pdb
