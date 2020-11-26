@@ -27,9 +27,15 @@ namespace RabbitExcercise1
 
                     // 1. declare the queue, it should be durable
                     // channel.QueueDeclare(queue: string, durable: bool, exclusive:bool=false, autoDelete:bool=false)
+
+                    // 2. declare an exchange 
+                    string exchangeName = YOUR_NAME + "-exchange";
+                    channel.ExchangeDeclare(exchange: exchangeName, type: "direct");
+
+                    // 3. bind the exchange and queue
+                    channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: "myKey");
                     
-                    
-                    // 2. publish a message to the empty string named exchange, with routing key of queue name
+                    // 3. publish a message to the  exchange, with routing key of "myKey"
                     // channel.basicPublish(exchange: string, routingKey: string, body: byte[])
                 
                     // sleep so the message get to the server before closing the channel 
