@@ -55,6 +55,9 @@ namespace RabbitExcercise1
                 
             }
 
+            // ---------------------------
+            // second exercise
+
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
