@@ -1,0 +1,8 @@
+
+/**
+IBasicProperties props = channel.CreateBasicProperties();
+props.ContentType = "text/plain";
+props.DeliveryMode = 2;
+props.Headers = new Dictionary<string, object>();
+props.Headers.Add("prop",  value);
+*/
