@@ -8,7 +8,8 @@ namespace RabbitExcercise1
 {
     class Program
     {
-        public static string YOUR_NAME = "Lajos-x-";
+        public static string YOUR_NAME = "YOUR-NAME";
+        public static TimeSpan twoMs = new TimeSpan(0, 0,0,0,20);
 
         static void Main(string[] args)
         {
@@ -16,8 +17,8 @@ namespace RabbitExcercise1
                 new ConnectionFactory()
                 {
                     HostName = "18.159.212.120",
-                    UserName = "",
-                    Password = ""
+                    UserName = "testuser",
+                    Password = "7HDpJ23ntECiR6bx"
                 };
             using (var connection = factory.CreateConnection())
             {
@@ -31,29 +32,51 @@ namespace RabbitExcercise1
                     int deliveryMode = 2;
 
                     // 1. declare two queues, add a policy on the GUI for one of them to make it lazy
+                    // 1.a Optionally use queue arguments to make the queue lazy
+                    // Dictionary<string, object> args = new Dictionary<string, object>()
+                    // {
+                    //    { "x-queue-mode", "lazy" },
+                    //    { "x-queue-type", "classic"} // this can be quorum in a cluster
+                    // };            
+
+
                     channel.QueueDeclare(queue: queueName, 
                         durable: true, 
                         exclusive: false, 
                         autoDelete: false);
+                    // 2. declare second queue
                     
-                    
-                    // 2. declare a fanout exchange
+                    // 2. declare an exchange
                     string exchangeName = YOUR_NAME + "-exchange";
-                    channel.ExchangeDeclare(exchange: exchangeName, type: "direct");
+                    // channel.ExchangeDeclare(exchange: exchangeName, type: "direct");
 
-                    // bind the exchange and both queues
-                    channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
+                    // 3. bind the exchange and both queues
+                    // channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
+                    // channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
                     
-                    // enable confirms
+                    // 4. enable confirms
                     channel.ConfirmSelect();
-                    // publish a message to the  exchange, with routing key of "myKey"
+
+                    // 5. we want to publish durable messages
+                    IBasicProperties props = channel.CreateBasicProperties();
+                    // props.DeliveryMode = 2;
+
+                    // publish a message to the  exchange so that it goes into both queues
                     for (int i = 0; i < 200; i++)
                     {
-                        channel.BasicPublish(exchange: exchangeName, routingKey: routingKey, body: messageBody);    
+                        channel.BasicPublish(exchange: exchangeName, 
+                            routingKey: routingKey, 
+                            body: messageBody,
+                            basicProperties: props
+                            );    
                     }
 
-                    // wait for confirms
-                    channel.WaitForConfirms();
+                    bool timedOut = false;
+                    do {
+                        Console.WriteLine("We are waiting for outstanding messages...");
+                        channel.WaitForConfirms(twoMs, out timedOut);
+                    }
+                    while(timedOut); 
 
                     Console
                         .WriteLine($" Published messages with routing key {routingKey} to exchange '{exchangeName}'");
