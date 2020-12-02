@@ -61,6 +61,10 @@ namespace RabbitExcercise1
                     IBasicProperties props = channel.CreateBasicProperties();
                     // props.DeliveryMode = 2;
 
+                    // 6. we can add some additional headers
+                    props.Headers = new Dictionary<string, object>();
+                    props.Headers.Add("extra-message",  "hello world");
+
                     // publish a message to the  exchange so that it goes into both queues
                     for (int i = 0; i < 200; i++)
                     {
